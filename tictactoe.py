@@ -2,11 +2,19 @@
 board = [["", "", ""], ["", "", ""], ["", "", ""]]
 
 players = ["X", "O"]
-# Display the board in terminal
+
+
 def print_board(board):
-    for row in board:
-        print(" | ".join(row))
-        print("-" * 9)
+    for i in range(3):
+        for j in range(3):
+            # Print numbered cells if empty, else print the symbol
+            cell = board[i][j] if board[i][j] != "" else 3 * i + j + 1
+            print(cell, end="")
+            if j < 2:
+                print(" | ", end="")
+        print()
+        if i < 2:
+            print("-" * 9)
 
 
 # Handling players moves and update the board
@@ -14,13 +22,17 @@ def player_move(board, player_symbol):
     print(f"Player {player_symbol}, it's your turn!")
     while True:
         try:
-            row = int(input("Enter row (0, 1, 2): "))
-            col = int(input("Enter column (0, 1, 2): "))
-            if 0 <= row <= 2 and 0 <= col <= 2 and board[row][col] == "":
-                board[row][col] = player_symbol
-                break
+            cell_number = int(input("Enter cell number (1 to 9): "))
+            if 1 <= cell_number <= 9:
+                row = (cell_number - 1) // 3
+                col = (cell_number - 1) % 3
+                if board[row][col] == "":
+                    board[row][col] = player_symbol
+                    break
+                else:
+                    print("Cell is already taken. Try again.")
             else:
-                print("Invalid move. Try again.")
+                print("Invalid cell number. Try again.")
         except ValueError:
             print("Invalid input. Try again.")
 
@@ -53,26 +65,45 @@ def check_tie(board):
 
 # main loop
 def main():
-    
-    current_player = 0
-    while True:
-        print_board(board)
-        player_symbol = players[current_player]
-        player_move(board, player_symbol)
+    play_again = True
 
-        if check_win(board, player_symbol):
-            print_board(board)
-            print(f"Player {player_symbol} wins!")
-            break
-        elif check_tie(board):
-            print_board(board)
-            print("It's a tie!")
-            break
+    while play_again:
+        current_player = 0
 
-        if current_player == 0:
-            current_player = 1
-        else:
-            current_player = 0
+        # Ask the user what symbol they want to play with
+        while True:
+            player_choice = input("Do you want to play with 'X' or 'O'? ").upper()
+            if player_choice == "X":
+                current_player = 0
+                break
+            elif player_choice == "O":
+                current_player = 1
+                break
+            else:
+                print("Invalid choice. Please enter 'X' or 'O'.")
+
+            # reset board for a new game
+            for i in range(3):
+                for j in range(3):
+                    board[i][j] = ""
+
+        while True:
+            print("Tic Tac Toe")
+            print_board(board)
+            player_symbol = players[current_player]
+            player_move(board, player_symbol)
+
+            if check_win(board, player_symbol):
+                print_board(board)
+                print(f"Player {player_symbol} wins!")
+                break
+            elif check_tie(board):
+                print_board(board)
+                print("It's a tie!")
+                break
+            current_player = (current_player + 1) % 2
+        # Ask the user if they want to play again
+        play_again = input("Do you want to play again? (y/n) ").lower() == "y"
 
 
 if __name__ == "__main__":
